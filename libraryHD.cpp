@@ -78,6 +78,23 @@ struct library
 
 //Procedures, functions
 /**
+ * Clean the string data from the CSV file
+ * @param value
+ * @returns a "clean" string
+ */
+string clean_data(string value)
+{
+    if (length_of(value) >= 2 && value[0] == '"' && value[length_of(value) - 1] == '"' )
+    {
+        return value.substr(1, length_of(value) - 2);
+    }
+    else
+    {
+        return value;
+    }
+}
+
+/**
  * Read the genre enum, and then return a string according to that genre
  * @param book_genre
  * @returns a string
