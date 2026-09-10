@@ -1,0 +1,5 @@
+book_id,title,author,genre,copies,borrows_total
+1,The Hobbit,J.R.R Tolkien,Fantasy,5,20
+2,"Harry Potter, Vol 1",J.K. Rowling,Fantasy,3,15
+3,Dune,Frank Herbert,Fiction,2,8
+4,"The Lion, the Witch and the Wardrobe",C.S. Lewis,Fiction,4,12

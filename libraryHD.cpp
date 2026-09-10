@@ -717,13 +717,16 @@ void print_recommendations(library &data)
  */
 genre string_to_genre_CSV(string genre_string)
 {
-    if (genre_string == "Fiction") {return FICTION;}
-    else if (genre_string == "Science Fiction") {return SCI_FI;}
-    else if (genre_string == "Mystery") {return MYSTERY;}
-    else if (genre_string == "Thriller") {return THRILLER;}
-    else if (genre_string == "Romance") {return ROMANCE;}
-    else if (genre_string == "Non-Fiction") {return NON_FICTION;}
-    else if (genre_string == "Fantasy") {return FANTASY;}
+    genre value;
+    
+    if (genre_string == "Fiction") {value = FICTION;}
+    else if (genre_string == "Science Fiction") {value = SCI_FI;}
+    else if (genre_string == "Mystery") {value = MYSTERY;}
+    else if (genre_string == "Thriller") {value = THRILLER;}
+    else if (genre_string == "Romance") {value = ROMANCE;}
+    else if (genre_string == "Non-Fiction") {value = NON_FICTION;}
+    else if (genre_string == "Fantasy") {value = FANTASY;}
+    return value;
 }
 
 /**
@@ -751,19 +754,27 @@ void read_book_from_CSV(library &data, string file_name)
         string fields[6];
         int field_index = 0;       // Keep track what fields we are in
         string current_field = ""; // A variable used to build of the characters of a field
+        bool inside_quotes = false;
 
         // The loop used to run through every character in a line
         for (int i = 0; i < length_of(line); i++)
         {
-            if (line[i] != ',')
+            char c = line[i];
+            
+            if (c == '"')
             {
-                current_field += line[i]; // Building of the characters
+                inside_quotes = !inside_quotes;
+                current_field += c;
             }
-            else if (line[i] == ',')
+            else if (c == ',' && !inside_quotes)
             {
                 fields[field_index] = clean_data(current_field);
-                field_index++;      // Move to the next field
-                current_field = ""; // Reset the current field variable
+                field_index++;
+                current_field = "";
+            }
+            else
+            {
+                current_field += c;
             }
         }
         // Clean the last field
@@ -788,12 +799,14 @@ int main()
     library data = {};
 
     // Add 5 books
-    data.books[0] = {1, "Dune", "Frank Herbert", SCI_FI, 3, 5};
-    data.books[1] = {2, "1984", "George Orwell", FICTION, 1, 8};
-    data.books[2] = {3, "The Hobbit", "J.R.R. Tolkien", FANTASY, 1, 3};
-    data.books[3] = {4, "Gone Girl", "Gillian Flynn", THRILLER, 0, 6};
-    data.books[4] = {5, "Pride and Prejudice", "Jane Austen", ROMANCE, 4, 2};
-    data.book_count = 5;
+    //data.books[0] = {1, "Dune", "Frank Herbert", SCI_FI, 3, 5};
+    //data.books[1] = {2, "1984", "George Orwell", FICTION, 1, 8};
+    //data.books[2] = {3, "The Hobbit", "J.R.R. Tolkien", FANTASY, 1, 3};
+    //data.books[3] = {4, "Gone Girl", "Gillian Flynn", THRILLER, 0, 6};
+    //data.books[4] = {5, "Pride and Prejudice", "Jane Austen", ROMANCE, 4, 2};
+    //data.book_count = 5;
+
+    read_book_from_CSV(data, "books.csv");
 
     // Add 5 members
     data.members[0] = {1, "Alice", 1};
