@@ -1,13 +1,15 @@
 #include "splashkit.h"
 #include "utilities.h"
+#include <iostream>
+#include <fstream>
 
-//Constants
+// Constants
 const int MAX_BOOKS = 100;
 const int MAX_MEMBER = 50;
 const int BORROW_LIMIT = 3;
 const int MAX_LOANS = MAX_MEMBER * BORROW_LIMIT;
-//Enums
-enum genre 
+// Enums
+enum genre
 {
     FICTION,
     NON_FICTION,
@@ -38,7 +40,7 @@ enum loan_status
     RETURNED
 };
 
-//Declaring structs
+// Declaring structs
 struct book
 {
     int book_id;
@@ -67,7 +69,7 @@ struct loan
 struct library
 {
     book books[MAX_BOOKS];
-    int book_count; 
+    int book_count;
 
     member members[MAX_MEMBER];
     int member_count;
@@ -76,7 +78,7 @@ struct library
     int loan_count;
 };
 
-//Procedures, functions
+// Procedures, functions
 /**
  * Clean the string data from the CSV file
  * @param value
@@ -84,7 +86,7 @@ struct library
  */
 string clean_data(string value)
 {
-    if (length_of(value) >= 2 && value[0] == '"' && value[length_of(value) - 1] == '"' )
+    if (length_of(value) >= 2 && value[0] == '"' && value[length_of(value) - 1] == '"')
     {
         return value.substr(1, length_of(value) - 2);
     }
@@ -103,34 +105,34 @@ string genre_to_string(genre book_genre)
 {
     switch (book_genre)
     {
-        case FICTION:
-            return "Fiction";
-            break;
-        case NON_FICTION:
-            return "Non-Fiction";
-            break;
-        case SCI_FI:
-            return "Science Fiction";
-            break;
-        case MYSTERY:
-            return "Mystery";
-            break;
-        case ROMANCE:
-            return "Romance";
-            break;
-        case THRILLER:
-            return "Thriller";
-            break;
-        case FANTASY:
-            return "Fantasy";
-            break;
-        default:
-            return "Unknown";
-            break;
+    case FICTION:
+        return "Fiction";
+        break;
+    case NON_FICTION:
+        return "Non-Fiction";
+        break;
+    case SCI_FI:
+        return "Science Fiction";
+        break;
+    case MYSTERY:
+        return "Mystery";
+        break;
+    case ROMANCE:
+        return "Romance";
+        break;
+    case THRILLER:
+        return "Thriller";
+        break;
+    case FANTASY:
+        return "Fantasy";
+        break;
+    default:
+        return "Unknown";
+        break;
     }
 }
 
-/** 
+/**
  * Read the status enum, and then return a string according to that status
  * @param loan_status
  * @returns a string
@@ -139,40 +141,67 @@ string status_to_string(loan_status loan_status)
 {
     switch (loan_status)
     {
-        case ACTIVE:
-            return "Active";
-            break;
-        case OVERDUE:
-            return "Overdued";
-            break;
-        case RETURNED:
-            return "Returned";
-            break;
-        default:
-            return "Unknown";
-            break;
+    case ACTIVE:
+        return "Active";
+        break;
+    case OVERDUE:
+        return "Overdued";
+        break;
+    case RETURNED:
+        return "Returned";
+        break;
+    default:
+        return "Unknown";
+        break;
     }
 }
 
-
 /**
  * Read the user's input, then return an enum value based on the string
- * 
+ *
  */
 genre string_to_genre()
 {
     bool correct_genre = false;
     genre input;
     do
-    {   
+    {
         string genre_string = read_string("Please enter a genre: ");
-        if (genre_string == "Fiction") {correct_genre = true; input = FICTION;}
-        else if (genre_string == "Science Fiction") { correct_genre = true; input = SCI_FI;}
-        else if (genre_string == "Mystery") {correct_genre = true; input = MYSTERY;}
-        else if (genre_string == "Thriller") {correct_genre = true; input = THRILLER;}
-        else if (genre_string == "Romance") {correct_genre = true; input = ROMANCE;}
-        else if (genre_string == "Non-Fiction") {correct_genre = true; input = NON_FICTION;}
-        else if (genre_string == "Fantasy") {correct_genre = true; input = FANTASY;}
+        if (genre_string == "Fiction")
+        {
+            correct_genre = true;
+            input = FICTION;
+        }
+        else if (genre_string == "Science Fiction")
+        {
+            correct_genre = true;
+            input = SCI_FI;
+        }
+        else if (genre_string == "Mystery")
+        {
+            correct_genre = true;
+            input = MYSTERY;
+        }
+        else if (genre_string == "Thriller")
+        {
+            correct_genre = true;
+            input = THRILLER;
+        }
+        else if (genre_string == "Romance")
+        {
+            correct_genre = true;
+            input = ROMANCE;
+        }
+        else if (genre_string == "Non-Fiction")
+        {
+            correct_genre = true;
+            input = NON_FICTION;
+        }
+        else if (genre_string == "Fantasy")
+        {
+            correct_genre = true;
+            input = FANTASY;
+        }
     } while (correct_genre == false);
 
     return input;
@@ -184,7 +213,7 @@ genre string_to_genre()
  */
 void add_book(library &data)
 {
-    //Checking the capacity
+    // Checking the capacity
     if (data.book_count < MAX_BOOKS)
     {
         book new_book;
@@ -199,7 +228,6 @@ void add_book(library &data)
         data.books[data.book_count] = new_book;
 
         data.book_count++;
-
     }
     else if (data.book_count >= MAX_BOOKS)
     {
@@ -209,13 +237,13 @@ void add_book(library &data)
 }
 
 /**
- * 
+ *
  * Add a member to the system
  * @param data
  */
-void add_member (library &data)
+void add_member(library &data)
 {
-    //Checking the capacity 
+    // Checking the capacity
     if (data.member_count < MAX_MEMBER)
     {
         member new_member;
@@ -290,10 +318,10 @@ int find_loan(const library &data, string found_title, int found_id)
         return found_index;
     }
     string book_title = data.books[book_index].title;
-    
+
     for (int i = 0; i < data.loan_count; i++)
     {
-        if (data.loans[i].book_title == book_title  && data.loans[i].member_id == found_id && data.loans[i].status == ACTIVE)
+        if (data.loans[i].book_title == book_title && data.loans[i].member_id == found_id && data.loans[i].status == ACTIVE)
         {
             found_index = i;
         }
@@ -311,7 +339,7 @@ void print_book(library const &data)
     int choice;
     choice = read_integer("Do you want to print the details of a particular book (1) or all books (2)? ");
     write_line();
-    while (choice != 1 && choice !=2)
+    while (choice != 1 && choice != 2)
     {
         choice = read_integer("Invalid choice. Please enter 1 or 2: ");
     }
@@ -351,7 +379,7 @@ void print_book(library const &data)
 
 /**
  * Print loan records of a specific member
- * 
+ *
  */
 void print_loan(library const &data)
 {
@@ -387,7 +415,7 @@ void print_loan(library const &data)
     }
     else if (choice == 2)
     {
-        //Reading user's input
+        // Reading user's input
         int member_id = read_integer("Enter member's ID: ");
         int member_index = find_member(data, member_id);
         while (member_index == -1)
@@ -396,7 +424,7 @@ void print_loan(library const &data)
             member_index = find_member(data, member_id);
         }
         string book_title = read_string("Enter book's title: ");
-        //Finding the loan record
+        // Finding the loan record
         int loan_index = find_loan(data, book_title, member_id);
         while (loan_index == -1)
         {
@@ -433,7 +461,7 @@ void print_member(library const &data)
     int choice;
     choice = read_integer("Do you want to print the details of a particular member (1) or all members (2)? ");
     write_line();
-    while (choice != 1 && choice !=2)
+    while (choice != 1 && choice != 2)
     {
         choice = read_integer("Invalid choice. Please enter 1 or 2: ");
     }
@@ -457,7 +485,7 @@ void print_member(library const &data)
     {
         for (int i = 0; i < data.member_count; i++)
         {
-            write_line("ID: " + to_string(data.members[i].member_id) + " | Name: " + data.members[i].name + " | Books borrowed: "  + to_string(data.members[i].books_borrowed));
+            write_line("ID: " + to_string(data.members[i].member_id) + " | Name: " + data.members[i].name + " | Books borrowed: " + to_string(data.members[i].books_borrowed));
             write_line();
         }
     }
@@ -499,12 +527,12 @@ menu read_menu_option()
 /**
  * Checkout a book
  * Fnd the books and members, checks the capacity and then updates both structs and add new loan record
- * 
+ *
  * @param data
  */
 void checkout(library &data)
 {
-    //Reading user's input and checking the condition
+    // Reading user's input and checking the condition
     int member_id = read_integer("Enter member's ID: ");
     int member_index = find_member(data, member_id);
     while (member_index == -1)
@@ -520,7 +548,7 @@ void checkout(library &data)
     {
         write_line("System Error. System's number of loans has reached the limit");
     }
-    else 
+    else
     {
         string book_title = read_string("Enter book's title: ");
         int book_index = find_book(data, book_title);
@@ -529,17 +557,17 @@ void checkout(library &data)
             book_title = read_string("Book not found. Try again: ");
             book_index = find_book(data, book_title);
         }
-        if (data.books[book_index].copies <= 0 )
+        if (data.books[book_index].copies <= 0)
         {
             write_line("Sorry. We are currently running out of the book you want to borrow.");
         }
-        else 
+        else
         {
-            //Updating the two structs
+            // Updating the two structs
             data.members[member_index].books_borrowed++;
             data.books[book_index].copies--;
             data.books[book_index].borrows_total++;
-            //Add a new loan record
+            // Add a new loan record
             loan new_loan;
             new_loan.book_title = data.books[book_index].title;
             new_loan.member_id = data.members[member_index].member_id;
@@ -556,12 +584,12 @@ void checkout(library &data)
 /**
  * Return a book
  * Find the loan record based on the book_id and member_id, update the copies and books_borrowed and update the loan record's status
- * 
+ *
  * @param data
  */
 void return_book(library &data)
 {
-    //Reading user's input
+    // Reading user's input
     int member_id = read_integer("Enter member's ID: ");
     int member_index = find_member(data, member_id);
     while (member_index == -1)
@@ -570,7 +598,7 @@ void return_book(library &data)
         member_index = find_member(data, member_id);
     }
     string book_title = read_string("Enter book's title: ");
-    //Finding the loan record
+    // Finding the loan record
     int loan_index = find_loan(data, book_title, member_id);
     while (loan_index == -1)
     {
@@ -585,27 +613,27 @@ void return_book(library &data)
         book_title = read_string("Enter book's title: ");
         loan_index = find_loan(data, book_title, member_id);
     }
-    //Update the copies and books borrowed
+    // Update the copies and books borrowed
     int book_index = find_book(data, book_title);
     data.members[member_index].books_borrowed--;
     data.books[book_index].copies++;
-    //Update the loan status
+    // Update the loan status
     data.loans[loan_index].status = RETURNED;
     write_line();
 }
 
 /**
  * Print the top 5 books of all genres
- * 
+ *
  * @param data
  * @param filter_by_genre to specify whether to only search for books of a specific genre
  * @param option of the genre
- * 
+ *
  */
 void print_top_5(library &data, bool filter_by_genre, genre option)
 {
     {
-        //Create an array storing 5 top books' index
+        // Create an array storing 5 top books' index
         int top5_indexes[5] = {-1, -1, -1, -1, -1};
         //
         for (int m = 0; m < 5; m++)
@@ -615,12 +643,12 @@ void print_top_5(library &data, bool filter_by_genre, genre option)
 
             for (int i = 0; i < data.book_count; i++)
             {
-                //This if is used to for the filter logic
-                if (filter_by_genre && data.books[i].book_genre != option) //Once the filter_by_genre is false, it will check every book
+                // This if is used to for the filter logic
+                if (filter_by_genre && data.books[i].book_genre != option) // Once the filter_by_genre is false, it will check every book
                 {
                     continue;
                 }
-                //Check if the index has already in the top 5 array
+                // Check if the index has already in the top 5 array
                 bool already_in_top = false;
                 for (int index = 0; index < m; index++)
                 {
@@ -630,7 +658,7 @@ void print_top_5(library &data, bool filter_by_genre, genre option)
                         break;
                     }
                 }
-                //Ranking the books
+                // Ranking the books
                 if (already_in_top)
                 {
                     continue;
@@ -641,7 +669,7 @@ void print_top_5(library &data, bool filter_by_genre, genre option)
                     book_index = i;
                 }
             }
-            //Add the index into the array
+            // Add the index into the array
             top5_indexes[m] = book_index;
         }
         for (int n = 0; n < 5; n++)
@@ -654,18 +682,17 @@ void print_top_5(library &data, bool filter_by_genre, genre option)
     }
 }
 
-
 /**
- * 
+ *
  * Print recommedations for top 5 based on the total borrows of each book
  * The user can request a specific genre
- * 
+ *
  */
 void print_recommendations(library &data)
 {
     int choice = read_integer("You want to print top 5 books for (1) all genres or (2) a specific genre? ");
     write_line();
-    while (choice != 1 && choice != 2 )
+    while (choice != 1 && choice != 2)
     {
         choice = read_integer("Invalid input. Please try again: ");
         write_line();
@@ -684,12 +711,83 @@ void print_recommendations(library &data)
     }
 }
 
+/**
+ * A function use in for reading CSV file, converting a string to genre enum value
+ *
+ */
+genre string_to_genre_CSV(string genre_string)
+{
+    if (genre_string == "Fiction") {return FICTION;}
+    else if (genre_string == "Science Fiction") {return SCI_FI;}
+    else if (genre_string == "Mystery") {return MYSTERY;}
+    else if (genre_string == "Thriller") {return THRILLER;}
+    else if (genre_string == "Romance") {return ROMANCE;}
+    else if (genre_string == "Non-Fiction") {return NON_FICTION;}
+    else if (genre_string == "Fantasy") {return FANTASY;}
+}
+
+/**
+ * Read the book csv file and populate data into the array
+ * @param data
+ * @param file_name
+ */
+void read_book_from_CSV(library &data, string file_name)
+{
+    std::ifstream csv_file(file_name);
+
+    if (!csv_file.is_open())
+    {
+        write_line("Error: " + file_name + " not found.");
+        return;
+    }
+
+    string line;
+    std::getline(csv_file, line);
+
+    // The loop will run as long as there is still a line to read and the array is not full
+    while (std::getline(csv_file, line) && data.book_count < MAX_BOOKS)
+    {
+        // Create a local array to holds 6 fields of the book struct
+        string fields[6];
+        int field_index = 0;       // Keep track what fields we are in
+        string current_field = ""; // A variable used to build of the characters of a field
+
+        // The loop used to run through every character in a line
+        for (int i = 0; i < length_of(line); i++)
+        {
+            if (line[i] != ',')
+            {
+                current_field += line[i]; // Building of the characters
+            }
+            else if (line[i] == ',')
+            {
+                fields[field_index] = clean_data(current_field);
+                field_index++;      // Move to the next field
+                current_field = ""; // Reset the current field variable
+            }
+        }
+        // Clean the last field
+        fields[field_index] = clean_data(current_field);
+
+        book new_book;
+        new_book.book_id = to_integer(fields[0]);
+        new_book.title = fields[1];
+        new_book.author = fields[2];
+        new_book.book_genre = string_to_genre_CSV(fields[3]);
+        new_book.copies = to_integer(fields[4]);
+        new_book.borrows_total = to_integer(fields[5]);
+
+        data.books[data.book_count] = new_book;
+        data.book_count++;
+    }
+}
+
 int main()
 {
     menu choice;
-    library data ={};
+    library data = {};
 
-    //Add 5 books
+    // Add 5 books
     data.books[0] = {1, "Dune", "Frank Herbert", SCI_FI, 3, 5};
     data.books[1] = {2, "1984", "George Orwell", FICTION, 1, 8};
     data.books[2] = {3, "The Hobbit", "J.R.R. Tolkien", FANTASY, 1, 3};
@@ -697,7 +795,7 @@ int main()
     data.books[4] = {5, "Pride and Prejudice", "Jane Austen", ROMANCE, 4, 2};
     data.book_count = 5;
 
-    //Add 5 members
+    // Add 5 members
     data.members[0] = {1, "Alice", 1};
     data.members[1] = {2, "Bob", 1};
     data.members[2] = {3, "Charlie", 0};
@@ -705,12 +803,12 @@ int main()
     data.members[4] = {5, "Evan", 0};
     data.member_count = 5;
 
-    //Add 2 loan records
+    // Add 2 loan records
     data.loans[0] = {1, "1984", 3, ACTIVE};
     data.loans[1] = {2, "Gone Girl", 10, ACTIVE};
     data.loan_count = 2;
 
-    do 
+    do
     {
         print_menu();
         choice = read_menu_option();
@@ -718,32 +816,32 @@ int main()
 
         switch (choice)
         {
-            case ADD_MEMBER:
-                add_member(data);
-                break;
-            case ADD_BOOK:
-                add_book(data);
-                break;
-            case PRINT_MEMBER:
-                print_member(data);
-                break;
-            case PRINT_BOOK:
-                print_book(data);
-                break;
-            case PRINT_LOAN:
-                print_loan(data);
-                break;
-            case CHECKOUT:
-                checkout(data);
-                break;
-            case RETURN:
-                return_book(data);
-                break;
-            case RECOMMEND:
-                print_recommendations(data);
-                break;
-            case QUIT:
-                break;
+        case ADD_MEMBER:
+            add_member(data);
+            break;
+        case ADD_BOOK:
+            add_book(data);
+            break;
+        case PRINT_MEMBER:
+            print_member(data);
+            break;
+        case PRINT_BOOK:
+            print_book(data);
+            break;
+        case PRINT_LOAN:
+            print_loan(data);
+            break;
+        case CHECKOUT:
+            checkout(data);
+            break;
+        case RETURN:
+            return_book(data);
+            break;
+        case RECOMMEND:
+            print_recommendations(data);
+            break;
+        case QUIT:
+            break;
         }
     } while (choice != QUIT);
 
