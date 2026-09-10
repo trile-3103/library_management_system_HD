@@ -712,7 +712,7 @@ void print_recommendations(library &data)
 }
 
 /**
- * A function use in for reading CSV file, converting a string to genre enum value
+ * A function used for reading CSV file, converting a string to genre enum value
  *
  */
 genre string_to_genre_CSV(string genre_string)
@@ -792,6 +792,146 @@ void read_book_from_CSV(library &data, string file_name)
         data.book_count++;
     }
 }
+
+/**
+ * Read the member csv file and populate data into the array
+ * @param data
+ * @param file_name
+ */
+void read_member_from_CSV(library &data, string file_name)
+{
+    std::ifstream csv_file(file_name);
+
+    if (!csv_file.is_open())
+    {
+        write_line("Error: " + file_name + " not found.");
+        return;
+    }
+
+    string line;
+    std::getline(csv_file, line);
+
+    // The loop will run as long as there is still a line to read and the array is not full
+    while (std::getline(csv_file, line) && data.member_count < MAX_MEMBER)
+    {
+        // Create a local array to holds 6 fields of the book struct
+        string fields[3];
+        int field_index = 0;       // Keep track what fields we are in
+        string current_field = ""; // A variable used to build of the characters of a field
+        bool inside_quotes = false;
+
+        // The loop used to run through every character in a line
+        for (int i = 0; i < length_of(line); i++)
+        {
+            char c = line[i];
+            
+            if (c == '"')
+            {
+                inside_quotes = !inside_quotes;
+                current_field += c;
+            }
+            else if (c == ',' && !inside_quotes)
+            {
+                fields[field_index] = clean_data(current_field);
+                field_index++;
+                current_field = "";
+            }
+            else
+            {
+                current_field += c;
+            }
+        }
+        // Clean the last field
+        fields[field_index] = clean_data(current_field);
+
+        member new_member;
+        new_member.member_id = to_integer(fields[0]);
+        new_member.name = fields[1];
+        new_member.books_borrowed = to_integer(fields[2]);
+
+        data.members[data.member_count] = new_member;
+        data.member_count++;
+    }
+}
+
+/**
+ * A function used for reading CSV file, converting a string to status enum value
+ *
+ */
+loan_status string_to_status_CSV(string genre_string)
+{
+    loan_status value;
+    
+    if (genre_string == "Active") {value = ACTIVE;}
+    else if (genre_string == "Overdued") {value = OVERDUE;}
+    else if (genre_string == "Returned") {value = RETURNED;}
+    
+    return value;
+}
+
+/**
+ * Read the loan csv file and populate data into the array
+ * @param data
+ * @param file_name
+ */
+void read_loan_from_CSV(library &data, string file_name)
+{
+    std::ifstream csv_file(file_name);
+
+    if (!csv_file.is_open())
+    {
+        write_line("Error: " + file_name + " not found.");
+        return;
+    }
+
+    string line;
+    std::getline(csv_file, line);
+
+    // The loop will run as long as there is still a line to read and the array is not full
+    while (std::getline(csv_file, line) && data.loan_count < MAX_LOANS)
+    {
+        // Create a local array to holds 6 fields of the book struct
+        string fields[4];
+        int field_index = 0;       // Keep track what fields we are in
+        string current_field = ""; // A variable used to build of the characters of a field
+        bool inside_quotes = false;
+
+        // The loop used to run through every character in a line
+        for (int i = 0; i < length_of(line); i++)
+        {
+            char c = line[i];
+            
+            if (c == '"')
+            {
+                inside_quotes = !inside_quotes;
+                current_field += c;
+            }
+            else if (c == ',' && !inside_quotes)
+            {
+                fields[field_index] = clean_data(current_field);
+                field_index++;
+                current_field = "";
+            }
+            else
+            {
+                current_field += c;
+            }
+        }
+        // Clean the last field
+        fields[field_index] = clean_data(current_field);
+
+        loan new_loan;
+        new_loan.member_id = to_integer(fields[0]);
+        new_loan.book_title = fields[1];
+        new_loan.borrow_days = to_integer(fields[2]);
+        new_loan.status = string_to_status_CSV(fields[3]);
+
+        data.loans[data.loan_count] = new_loan;
+        data.loan_count++;
+    }
+}
+
+
 
 int main()
 {
