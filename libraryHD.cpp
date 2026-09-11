@@ -145,7 +145,7 @@ string status_to_string(loan_status loan_status)
         return "Active";
         break;
     case OVERDUE:
-        return "Overdued";
+        return "Overdue";
         break;
     case RETURNED:
         return "Returned";
@@ -711,9 +711,11 @@ void print_recommendations(library &data)
     }
 }
 
+//Procedures for reading CSV file at the start of the program
 /**
  * A function used for reading CSV file, converting a string to genre enum value
- *
+ *@param genre_string
+ *@returns a genre enum value
  */
 genre string_to_genre_CSV(string genre_string)
 {
@@ -814,7 +816,7 @@ void read_member_from_CSV(library &data, string file_name)
     // The loop will run as long as there is still a line to read and the array is not full
     while (std::getline(csv_file, line) && data.member_count < MAX_MEMBER)
     {
-        // Create a local array to holds 6 fields of the book struct
+        // Create a local array to holds 3 fields of the member struct
         string fields[3];
         int field_index = 0;       // Keep track what fields we are in
         string current_field = ""; // A variable used to build of the characters of a field
@@ -856,15 +858,16 @@ void read_member_from_CSV(library &data, string file_name)
 
 /**
  * A function used for reading CSV file, converting a string to status enum value
- *
+ *@param status_string
+ *@returns a status enum value
  */
-loan_status string_to_status_CSV(string genre_string)
+loan_status string_to_status_CSV(string status_string)
 {
-    loan_status value;
+    loan_status value = ACTIVE;
     
-    if (genre_string == "Active") {value = ACTIVE;}
-    else if (genre_string == "Overdued") {value = OVERDUE;}
-    else if (genre_string == "Returned") {value = RETURNED;}
+    if (status_string == "Active") {value = ACTIVE;}
+    else if (status_string == "Overdue") {value = OVERDUE;}
+    else if (status_string == "Returned") {value = RETURNED;}
     
     return value;
 }
@@ -890,7 +893,7 @@ void read_loan_from_CSV(library &data, string file_name)
     // The loop will run as long as there is still a line to read and the array is not full
     while (std::getline(csv_file, line) && data.loan_count < MAX_LOANS)
     {
-        // Create a local array to holds 6 fields of the book struct
+        // Create a local array to holds 4 fields of the loan struct
         string fields[4];
         int field_index = 0;       // Keep track what fields we are in
         string current_field = ""; // A variable used to build of the characters of a field
@@ -931,6 +934,123 @@ void read_loan_from_CSV(library &data, string file_name)
     }
 }
 
+//Procdures for writing CSV files at the end of the program
+/**
+ * Wrap a value in quotes if it contains a comma
+ * For correctly parsed back out into then CSV
+ * @param value
+ * @returns the newly modified value
+ */
+string csv_safe(string value)
+{
+    bool need_quotes = false; //By default a value will not need quotes
+
+    //Scanning character by character
+    for (int i = 0; i < length_of(value); i++)
+    {
+        if (value[i] == ',')
+        {
+            need_quotes = true;
+        }
+    }
+    //Add quotes if there is a comma found
+    if (need_quotes)
+    {
+        value = "\"" + value + "\"";
+    }
+    return value;
+}
+
+/**
+ * Write the final book array out to CSV file, overwriting the existing file
+ * Each book is written as one line, matching the same column order when reading the csv
+ * @param data
+ * @param file_name
+ */
+void write_books_to_CSV(const library &data, string file_name)
+{
+    //Overwriting the old file
+    std::ofstream csv_file(file_name);
+
+    if (!csv_file.is_open())
+    {
+        write_line("Error: could not open " + file_name + " for writing.");
+        return;
+    }
+    //Write the header row
+    csv_file << "book_id,title,author,genre,copies,borrows_total\n";
+    //Write one line per book
+    for (int i = 0; i < data.book_count; i++)
+    {
+        csv_file << data.books[i].book_id << ','
+                    << csv_safe(data.books[i].title) << ','
+                    << csv_safe(data.books[i].author) << ','
+                    << genre_to_string(data.books[i].book_genre) << ','
+                    << data.books[i].copies << ','
+                    << data.books[i].borrows_total << "\n";
+    }
+    //Close the file once done writing
+    csv_file.close();
+}
+
+/**
+ * Write the final member array to CSV file, overwriting the existing file
+ * Each member is written as one line, matching the same column order when reading the csv
+ * @param data
+ * @param file_name
+ */
+void write_members_to_CSV(const library &data, string file_name)
+{
+    //Overwrite the old file
+    std::ofstream csv_file(file_name);
+
+    if (!csv_file.is_open())
+    {
+        write_line("Error: could not open " + file_name + " for writing.");
+        return;
+    }
+    //Write the header row
+    csv_file << "member_id,name,books_borrowed\n";
+    //Write one line per member
+    for (int i = 0; i < data.member_count; i++)
+    {
+        csv_file << data.members[i].member_id << ','
+                    << csv_safe(data.members[i].name) << ','
+                    << data.members[i].books_borrowed << "\n";
+    }
+    //Close the file once done writing
+    csv_file.close();
+}
+
+/**
+ * Write the final loan array to CSV file, overwriting the existing file
+ * Each loan is written as one line, matching the same column order when reading the csv
+ * @param data
+ * @param file_name
+ */
+void write_loans_to_CSV(const library &data, string file_name)
+{
+    //Overwrite the old file
+    std::ofstream csv_file(file_name);
+
+    if (!csv_file.is_open())
+    {
+        write_line("Error: could not open " + file_name + " for writing.");
+        return;
+    }
+    //Write the header row
+    csv_file << "member_id,book_title,borrow_days,status\n";
+    //Write one line per loan
+    for (int i = 0; i < data.loan_count; i++)
+    {
+        csv_file << data.loans[i].member_id << ','
+                    << csv_safe(data.loans[i].book_title) << ','
+                    << data.loans[i].borrow_days << ','
+                    << status_to_string(data.loans[i].status) << "\n";
+    }
+    //Close the file once done writing
+    csv_file.close();
+}
 
 
 int main()
@@ -949,17 +1069,19 @@ int main()
     read_book_from_CSV(data, "books.csv");
 
     // Add 5 members
-    data.members[0] = {1, "Alice", 1};
-    data.members[1] = {2, "Bob", 1};
-    data.members[2] = {3, "Charlie", 0};
-    data.members[3] = {4, "Dana", 0};
-    data.members[4] = {5, "Evan", 0};
-    data.member_count = 5;
+    //data.members[0] = {1, "Alice", 1};
+    //data.members[1] = {2, "Bob", 1};
+    //data.members[2] = {3, "Charlie", 0};
+    //data.members[3] = {4, "Dana", 0};
+    //data.members[4] = {5, "Evan", 0};
+    //data.member_count = 5;
+    read_member_from_CSV(data, "members.csv");
 
     // Add 2 loan records
-    data.loans[0] = {1, "1984", 3, ACTIVE};
-    data.loans[1] = {2, "Gone Girl", 10, ACTIVE};
-    data.loan_count = 2;
+    //data.loans[0] = {1, "1984", 3, ACTIVE};
+    //data.loans[1] = {2, "Gone Girl", 10, ACTIVE};
+    //data.loan_count = 2;
+    read_loan_from_CSV(data, "loans.csv");
 
     do
     {
