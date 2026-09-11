@@ -8,6 +8,7 @@ const int MAX_BOOKS = 100;
 const int MAX_MEMBER = 50;
 const int BORROW_LIMIT = 3;
 const int MAX_LOANS = MAX_MEMBER * BORROW_LIMIT;
+const int OVERDUE_LIMIT = 14;
 // Enums
 enum genre
 {
@@ -30,6 +31,7 @@ enum menu
     CHECKOUT,
     RETURN,
     RECOMMEND,
+    ADVANCE,
     QUIT
 };
 
@@ -79,6 +81,45 @@ struct library
 };
 
 // Procedures, functions
+
+/**
+ * Update the loan status 
+ * If the borrow_days exceeds 14
+ * @param data
+ */
+void update_status(library &data)
+{
+    for (int i = 0 ; i < data.loan_count; i++)
+    {
+        if (data.loans[i].status == ACTIVE && data.loans[i].borrow_days > OVERDUE_LIMIT)
+        {
+            data.loans[i].status = OVERDUE;
+        }
+    }
+}
+
+/**
+ * Advance every active and overdue loan's borrow_days by a number of days based on user's input
+ * Then update every loan's status
+ * @param data
+ */
+void advance_days(library &data)
+{
+    int days;
+    days = read_integer("Enter the number of days you want to advance: ");
+
+    for (int i = 0; i < data.loan_count; i++)
+    {
+        if (data.loans[i].status == ACTIVE || data.loans[i].status == OVERDUE)
+        {
+            data.loans[i].borrow_days += days;
+        }
+    }
+    write_line("All active and overdue loan records have been added " + to_string(days) + " days.");
+    update_status(data);
+    write_line();
+}
+
 /**
  * Clean the string data from the CSV file
  * @param value
@@ -505,7 +546,8 @@ void print_menu()
     write_line("6. Checkout book.");
     write_line("7. Return book.");
     write_line("8. Recommend books.");
-    write_line("9. Quit.");
+    write_line("9. Advance days.");
+    write_line("10. Quit.");
     write_line("=====================================");
     write_line();
 }
@@ -517,7 +559,7 @@ void print_menu()
 menu read_menu_option()
 {
     int choice = read_integer("Option: ");
-    while (choice < 1 || choice > 9)
+    while (choice < 1 || choice > 10)
     {
         choice = read_integer("Invalid option. Try again: ");
     }
@@ -1082,6 +1124,7 @@ int main()
     //data.loans[1] = {2, "Gone Girl", 10, ACTIVE};
     //data.loan_count = 2;
     read_loan_from_CSV(data, "loans.csv");
+    update_status(data);
 
     do
     {
@@ -1115,10 +1158,18 @@ int main()
         case RECOMMEND:
             print_recommendations(data);
             break;
+        case ADVANCE:
+            advance_days(data);
+            break;
         case QUIT:
             break;
         }
     } while (choice != QUIT);
+
+    //Update the csv files
+    write_books_to_CSV(data, "books.csv");
+    write_members_to_CSV(data, "members.csv");
+    write_loans_to_CSV(data, "loans.csv");
 
     return 0;
 }
