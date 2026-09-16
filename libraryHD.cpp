@@ -680,41 +680,51 @@ void checkout(library &data)
     {
         write_line("Member's current number of books borrowed has reached the limit.");
     }
-    else if (data.loan_count >= MAX_LOANS)
-    {
-        write_line("System Error. System's number of loans has reached the limit");
-    }
-    else
-    {
-        string book_title = read_string("Enter book's title: ");
-        int book_index = find_book(data, book_title);
-        while (book_index == -1)
+    else {
+        int active_loan_count = 0;
+        for (int i = 0; i < data.loan_count; i++)
         {
-            book_title = read_string("Book not found. Try again: ");
-            book_index = find_book(data, book_title);
+            if (data.loans[i].status != RETURNED)
+            {
+                active_loan_count++;
+            }
         }
-        if (data.books[book_index].copies <= 0)
+        if (active_loan_count >= MAX_LOANS)
         {
-            write_line("Sorry. We are currently running out of the book you want to borrow.");
+            write_line("System Error. System's number of loans has reached the limit");
         }
         else
         {
-            // Updating the two structs
-            data.members[member_index].books_borrowed++;
-            data.books[book_index].copies--;
-            data.books[book_index].borrows_total++;
-            // Add a new loan record
-            loan new_loan;
-            new_loan.book_title = data.books[book_index].title;
-            new_loan.member_id = data.members[member_index].member_id;
-            new_loan.borrow_days = 0;
-            new_loan.status = ACTIVE;
+            string book_title = read_string("Enter book's title: ");
+            int book_index = find_book(data, book_title);
+            while (book_index == -1)
+            {
+                book_title = read_string("Book not found. Try again: ");
+                book_index = find_book(data, book_title);
+            }
+            if (data.books[book_index].copies <= 0)
+            {
+                write_line("Sorry. We are currently running out of the book you want to borrow.");
+            }
+            else
+            {
+                // Updating the two structs
+                data.members[member_index].books_borrowed++;
+                data.books[book_index].copies--;
+                data.books[book_index].borrows_total++;
+                // Add a new loan record
+                loan new_loan;
+                new_loan.book_title = data.books[book_index].title;
+                new_loan.member_id = data.members[member_index].member_id;
+                new_loan.borrow_days = 0;
+                new_loan.status = ACTIVE;
 
-            data.loans[data.loan_count] = new_loan;
-            data.loan_count++;
+                data.loans[data.loan_count] = new_loan;
+                data.loan_count++;
+            }
         }
+        write_line();
     }
-    write_line();
 }
 
 /**
