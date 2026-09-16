@@ -1,5 +1,19 @@
 book_id,title,author,genre,copies,borrows_total
-1,The Hobbit,J.R.R Tolkien,Fantasy,5,20
-2,"Harry Potter, Vol 1",J.K. Rowling,Fantasy,3,15
-3,Dune,Frank Herbert,Fiction,2,8
-4,"The Lion, the Witch and the Wardrobe",C.S. Lewis,Fiction,4,12
+1,Dune,Frank Herbert,Science Fiction,3,12
+2,1984,George Orwell,Fiction,2,20
+3,The Hobbit,J.R.R. Tolkien,Unknown,4,15
+4,Gone Girl,Gillian Flynn,Thriller,1,9
+5,Pride and Prejudice,Jane Austen,Romance,3,11
+6,"Harry Potter, Vol 1",J.K. Rowling,Fantasy,5,25
+7,Sapiens,Yuval Noah Harari,Non-Fiction,2,14
+8,The Da Vinci Code,Dan Brown,Mystery,2,10
+9,Brave New World,Aldous Huxley,Science Fiction,3,8
+10,The Girl on the Train,Paula Hawkins,Thriller,1,7
+11,Educated,Tara Westover,Non-Fiction,2,6
+12,The Silent Patient,Alex Michaelides,Mystery,2,13
+13,Normal People,Sally Rooney,Fiction,3,5
+14,Fahrenheit 451,Ray Bradbury,Science Fiction,2,9
+15,Little Women,Louisa May Alcott,Fiction,3,4
+16,The Shining,Stephen King,Thriller,2,17
+17,Atomic Habits,James Clear,Non-Fiction,4,22
+18,The Name of the Wind,Patrick Rothfuss,Fantasy,2,10

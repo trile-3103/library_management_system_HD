@@ -1,4 +1,19 @@
 member_id,book_title,borrow_days,status
-1,The Hobbit,5,Active
-3,"Harry Potter, Vol 1",12,Active
-3,Dune,20,Overdue
+1,Dune,6,Active
+1,"Harry Potter, Vol 1",21,Overdue
+2,1984,4,Active
+4,Sapiens,17,Overdue
+6,Gone Girl,8,Active
+6,The Hobbit,3,Active
+8,The Silent Patient,10,Active
+10,Atomic Habits,26,Overdue
+12,Fahrenheit 451,5,Active
+14,The Shining,19,Overdue
+2,The Da Vinci Code,10,Returned
+3,Brave New World,12,Returned
+5,Pride and Prejudice,6,Returned
+7,The Girl on the Train,20,Returned
+9,Little Women,5,Returned
+11,Normal People,8,Returned
+13,Educated,15,Returned
+15,The Name of the Wind,9,Returned
