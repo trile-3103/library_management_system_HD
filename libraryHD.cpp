@@ -80,7 +80,75 @@ struct library
     int loan_count;
 };
 
+/**
+ * A loan node that contains a pointer to the next node
+ */
+template<typename T>
+struct loan_node
+{
+    T data;
+    loan_node<T> *next;
+};
+
+/**
+ * A linked list used for storing returned loan records
+ * 
+ */
+template <typename T>
+struct returned_linked_list
+{
+    loan_node<T> *first;
+    loan_node<T> *last;
+};
+
 // Procedures, functions
+
+/**
+ * Creates a new linked list storing list.
+ */
+template<typename T>
+returned_linked_list<T> *new_returned_list()
+{
+    returned_linked_list<T> *list =(returned_linked_list<T> *)malloc(sizeof(returned_linked_list<T>));
+    list -> first = nullptr;
+    list -> last = nullptr;
+    return list;
+}
+
+
+/**
+ * Adding nodes to the end of the linked list
+ * 
+ */
+template <typename T>
+void add_returned_records(returned_linked_list<T> *list, const library &data)
+{
+    int i;
+    for (i = 0; i < data.loan_count; i++)
+    {
+        if (data.loans[i].status == RETURNED)
+        {
+            loan_node<T> *new_node = (loan_node<T> *)malloc(sizeof(loan_node<T>));
+
+            new(&new_node -> data) T();
+
+            new_node -> data = data.loans[i];
+            new_node -> next = nullptr;
+
+            if (list -> first == nullptr)
+            {
+                list -> first = new_node;
+                list -> last = new_node;
+            }
+            else 
+            {
+                list -> last -> next = new_node;
+                list -> last = new_node;
+            }
+        }
+    }
+}
+
 
 /**
  * Update the loan status 
