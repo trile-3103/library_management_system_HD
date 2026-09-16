@@ -151,6 +151,53 @@ void add_returned_records(returned_linked_list<T> *list, const library &data)
 
 
 /**
+ * Print loan history of a member
+ * Print only returned loans
+ * @tparam list
+ * @param data
+ */
+template <typename T>
+void print_history(returned_linked_list<T> *list, const library &data)
+{
+    if (list == nullptr || list -> first == nullptr)
+    {
+        write_line("No returned records yet.");
+        return;
+    }
+  
+    //Finding the member
+    int member_id = read_integer("Enter member's ID: ");
+    int member_index = find_member(data, member_id);
+    write_line();
+    while (member_index == -1)
+    {
+        member_id = read_integer("Member not found, try again: ");
+        member_index = find_member(data, member_id);
+    }
+
+    loan_node<T> *current = list -> first;
+    bool found_any = false;
+
+    while (current != nullptr)
+    {
+        if (current -> data.member_id == member_id)
+        {
+            write_line("Book title: " + current -> data.book_title);
+            write_line("Borrow days: " + to_string(current -> data.borrow_days));
+            write_line();
+
+            found_any = true;
+        }
+        current = current -> next;
+    }
+
+    if (!found_any)
+    {
+        write_line("No returned records found for member ID " + to_string(member_id));
+    }
+}
+
+/**
  * Update the loan status 
  * If the borrow_days exceeds 14
  * @param data
