@@ -9,6 +9,8 @@ const int MAX_MEMBER = 50;
 const int BORROW_LIMIT = 3;
 const int MAX_LOANS = MAX_MEMBER * BORROW_LIMIT;
 const int OVERDUE_LIMIT = 14;
+const double FINE_PER_DAY = 0.25;
+const int FINE_LIMIT = 5;
 // Enums
 enum genre
 {
@@ -28,6 +30,7 @@ enum menu
     PRINT_MEMBER,
     PRINT_BOOK,
     PRINT_LOAN,
+    PRINT_HISTORY,
     CHECKOUT,
     RETURN,
     RECOMMEND,
@@ -102,6 +105,29 @@ struct returned_linked_list
 };
 
 // Procedures, functions
+
+/**
+ * Checking a loan status, if the status is OVERDUE, calculate the fine
+ * The fine is capped at 5 dollars
+ * @param loan_index
+ */
+void check_for_fine(const library &data, int loan_index)
+{
+    if (data.loans[loan_index].status == OVERDUE)
+    {
+        int passed_days = data.loans[loan_index].borrow_days - OVERDUE_LIMIT;
+        write_line("This book has been borrowed " + to_string(passed_days) + " days passed the limit.");
+        double fine = passed_days * FINE_PER_DAY;
+        if (fine < FINE_LIMIT)
+        {
+            write_line("You are fined $" + to_string(fine));
+        }
+        else 
+        {
+            write_line("You are fined $5.00");
+        }
+    }
+}
 
 /**
  * Creates a new linked list storing list.
@@ -477,7 +503,7 @@ int find_loan(const library &data, string found_title, int found_id)
 
     for (int i = 0; i < data.loan_count; i++)
     {
-        if (data.loans[i].book_title == book_title && data.loans[i].member_id == found_id && data.loans[i].status == ACTIVE)
+        if (data.loans[i].book_title == book_title && data.loans[i].member_id == found_id && data.loans[i].status != RETURNED)
         {
             found_index = i;
         }
@@ -658,11 +684,12 @@ void print_menu()
     write_line("3. Print member's details.");
     write_line("4. Print book's details. ");
     write_line("5. Print loan's details. ");
-    write_line("6. Checkout book.");
-    write_line("7. Return book.");
-    write_line("8. Recommend books.");
-    write_line("9. Advance days.");
-    write_line("10. Quit.");
+    write_line("6. Print history.");
+    write_line("7. Checkout book.");
+    write_line("8. Return book.");
+    write_line("9. Recommend books.");
+    write_line("10. Advance days.");
+    write_line("11. Quit.");
     write_line("=====================================");
     write_line();
 }
@@ -674,7 +701,7 @@ void print_menu()
 menu read_menu_option()
 {
     int choice = read_integer("Option: ");
-    while (choice < 1 || choice > 10)
+    while (choice < 1 || choice > 11)
     {
         choice = read_integer("Invalid option. Try again: ");
     }
@@ -744,7 +771,7 @@ void checkout(library &data)
  *
  * @param data
  */
-void return_book(library &data)
+void return_book(library &data, returned_linked_list<loan> *list)
 {
     // Reading user's input
     int member_id = read_integer("Enter member's ID: ");
@@ -770,12 +797,31 @@ void return_book(library &data)
         book_title = read_string("Enter book's title: ");
         loan_index = find_loan(data, book_title, member_id);
     }
+    //Check for fine
+    check_for_fine(data, loan_index);
     // Update the copies and books borrowed
     int book_index = find_book(data, book_title);
     data.members[member_index].books_borrowed--;
     data.books[book_index].copies++;
     // Update the loan status
     data.loans[loan_index].status = RETURNED;
+    //Add to the linked list
+    loan_node<loan> *new_node = (loan_node<loan> *)malloc(sizeof(loan_node<loan>));
+
+
+    new_node -> data = data.loans[loan_index];
+    new_node -> next = nullptr;
+
+    if (list -> first == nullptr)
+    {
+        list -> first = new_node;
+        list -> last = new_node;
+    }
+    else 
+    {
+        list -> last -> next = new_node;
+        list -> last = new_node;
+    }
     write_line();
 }
 
@@ -1215,31 +1261,17 @@ int main()
     menu choice;
     library data = {};
 
-    // Add 5 books
-    //data.books[0] = {1, "Dune", "Frank Herbert", SCI_FI, 3, 5};
-    //data.books[1] = {2, "1984", "George Orwell", FICTION, 1, 8};
-    //data.books[2] = {3, "The Hobbit", "J.R.R. Tolkien", FANTASY, 1, 3};
-    //data.books[3] = {4, "Gone Girl", "Gillian Flynn", THRILLER, 0, 6};
-    //data.books[4] = {5, "Pride and Prejudice", "Jane Austen", ROMANCE, 4, 2};
-    //data.book_count = 5;
+    returned_linked_list<loan> *returned_list = new_returned_list<loan>();
 
     read_book_from_CSV(data, "books.csv");
 
-    // Add 5 members
-    //data.members[0] = {1, "Alice", 1};
-    //data.members[1] = {2, "Bob", 1};
-    //data.members[2] = {3, "Charlie", 0};
-    //data.members[3] = {4, "Dana", 0};
-    //data.members[4] = {5, "Evan", 0};
-    //data.member_count = 5;
     read_member_from_CSV(data, "members.csv");
 
-    // Add 2 loan records
-    //data.loans[0] = {1, "1984", 3, ACTIVE};
-    //data.loans[1] = {2, "Gone Girl", 10, ACTIVE};
-    //data.loan_count = 2;
     read_loan_from_CSV(data, "loans.csv");
+    
     update_status(data);
+
+    add_returned_records(returned_list, data);
 
     do
     {
@@ -1264,11 +1296,14 @@ int main()
         case PRINT_LOAN:
             print_loan(data);
             break;
+        case PRINT_HISTORY:
+            print_history(returned_list, data);
+            break;
         case CHECKOUT:
             checkout(data);
             break;
         case RETURN:
-            return_book(data);
+            return_book(data, returned_list);
             break;
         case RECOMMEND:
             print_recommendations(data);
